@@ -60,10 +60,10 @@ def chat_client():
 
 	if(LANGUAGE == "br"):
 		print ("Conexao estabelecida");
-		stdout.write('[Eu] '); stdout.flush();
+		#stdout.write('[Eu] '); stdout.flush();
 	else:
 		print ("Connection established");
-		stdout.write('[Me] '); stdout.flush();
+		#stdout.write('[Me] '); stdout.flush();
 		
 	while 1:
 	    socket_list = [stdin, client_socket];

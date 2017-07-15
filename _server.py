@@ -5,8 +5,6 @@ from sys import argv
 SOCKET_LIST = [];
 RECV_BUFFER = 4096;
 
-turn = 0;
-
 def chat_server():
     if(len(argv) < 2):
         print ("Use : python _server.py hostname port");
@@ -39,7 +37,7 @@ def chat_server():
                     PORT = input("Enter the PORT: ");
 
     
- 
+    match = [2];
     # add server socket object to the list of readable connections
     SOCKET_LIST.append(server_socket)
  
@@ -50,16 +48,22 @@ def chat_server():
         # get the list sockets which are ready to be read through select
         # 4th arg, time_out  = 0 : poll and never block
         ready_to_read,ready_to_write,in_error = select.select(SOCKET_LIST,[],[],0)
-      
+        
         for sock in ready_to_read:
             # a new connection request recieved
             if sock == server_socket: 
                 sockfd, addr = server_socket.accept()
-                SOCKET_LIST.append(sockfd)
+                if(len(match) != 3):
+                    SOCKET_LIST.append(sockfd)
                 print ("Player (%s, %s) connected" % addr);
-                 
+                match.append(sock);
                 broadcast(server_socket, sockfd, "[Adversario] entrou no seu jogo\n");
-             
+                if(len(match) == 3):
+                    broadcast(server_socket, server_socket, "\n\nO jogo iniciou\n\n");
+                    SOCKET_LIST[1].send("[SERVER] You are the \'X\'\n\n");
+                    SOCKET_LIST[2].send("[SERVER] You are the \'O\'\n\n");
+
+
             # a message from a client, not a new connection
             else:
                 # process data recieved from client, 
