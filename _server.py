@@ -1,21 +1,18 @@
 import socket
 import select
-from sys import argv
+from sys import argv 
 import random
 
 SOCKET_LIST = [];
 RECV_BUFFER = 4096;
 
 def tic_tac_toe_server():
-    if(len(argv) < 2):
-        print ("Use : python _server.py hostname port");
+    if(len(argv) != 2):
+        print ("Use : python _server.py port");
         exit(); 
     elif(len(argv) == 2):
         HOST = "";
         PORT = argv[1];
-    elif(len(argv) == 3):
-        HOST = argv[1];
-        PORT = argv[2];
 
     CONNECTION = (HOST, int(PORT));
 
@@ -39,8 +36,7 @@ def tic_tac_toe_server():
 
     
     match = [2];
-    boardcontent = list("         ");
-    boardTutorial = "1|2|3\n4|5|6\n7|8|9\n";
+    boardContent = "1|2|3\n4|5|6\n7|8|9\n\n";
     # add server socket object to the list of readable connections
     SOCKET_LIST.append(server_socket)
  
@@ -69,11 +65,13 @@ def tic_tac_toe_server():
                     turn = randomNumber%2;
                     if(turn == 0):
                         SOCKET_LIST[1].send("[SERVER] You are first\n");
+                        SOCKET_LIST[1].send("Mesa atual:\n"+boardContent+"\nSua jogada:\n");
                         SOCKET_LIST[2].send("[SERVER] You are second\n\n");
                     else:
                         SOCKET_LIST[1].send("[SERVER] You are second\n");
                         SOCKET_LIST[2].send("[SERVER] You are first\n\n");
-                    broadcast(server_socket,server_socket,boardTutorial);
+                        SOCKET_LIST[2].send("Mesa atual:\n"+boardContent+"\nSua jogada:\n");
+
 
 
             # a message from a client, not a new connection
@@ -84,24 +82,20 @@ def tic_tac_toe_server():
                     #data = sock.recv(RECV_BUFFER);
                     if (turn == 0):
                         data = SOCKET_LIST[1].recv(RECV_BUFFER);
-                        for n in xrange(1,9):
-                            if (n == int(data)):
-                                print("Achou");
+                        
                     else:
                         data = SOCKET_LIST[2].recv(RECV_BUFFER);
-                        for n in xrange(1,9):
-                            if (n == int(data)):
-                                print("Achou");
 
                     if data:
                         # there is something in the socket
                         #broadcast(server_socket, sock, "\r" + '[Adversario] ' + data) 
                         if turn == 0:
-                            SOCKET_LIST[2].send("[Adversario] jogou: "+data[0]+"\nSua vez:\n"+boardTutorial+"\n");
+                            boardContent = boardContent.replace(data[0], "X");
+                            SOCKET_LIST[2].send("[Adversario] jogou: "+data[0]+"\nMesa atual:\n"+boardContent+"\nSua jogada:\n");
                             turn = 1;
                         else:
-                            SOCKET_LIST[1].send("[Adversario] jogou: "+data[0]+"\nSua vez:\n"+boardTutorial+"\n");
-                        
+                            boardContent = boardContent.replace(data[0], "O");
+                            SOCKET_LIST[1].send("[Adversario] jogou: "+data[0]+"\nMesa atual:\n"+boardContent+"\nSua jogada:\n");
                             turn = 0;
                     else:
                         # remove the socket that's broken    
