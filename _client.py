@@ -60,10 +60,10 @@ def tic_tac_toe_client():
 					PORT = input("Enter the PORT: ");
 
 	if(LANGUAGE == "br"):
-		print ("Conexao estabelecida");
+		print ("Conexao estabelecida\nAguardando adversario...");
 		#stdout.write('[Eu] '); stdout.flush();
 	else:
-		print ("Connection established");
+		print ("Connection established\nWaiting other player...");
 		#stdout.write('[Me] '); stdout.flush();
 		
 	while 1:
@@ -78,7 +78,7 @@ def tic_tac_toe_client():
 	            os.system('cls' if os.name=='nt' else 'clear');
 	            data = sock.recv(4096);
 	            if not data :
-	                print ('\nDisconnected from chat server');
+	                print ('\nDisconnected from game');
 	                exit()
 	            else :
 	                #print data

@@ -116,7 +116,7 @@ def tic_tac_toe_server():
 
     server_socket.close()
     
-# broadcast chat messages to all connected clients
+# broadcast messages to all connected clients
 def broadcast (server_socket, sock, message):
     for socket in SOCKET_LIST:
         # send the message only to peer
