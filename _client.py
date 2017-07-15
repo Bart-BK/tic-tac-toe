@@ -1,8 +1,9 @@
 from sys import argv, stdin, stdout
 import socket
 import select
+import os
  
-def chat_client():
+def tic_tac_toe_client():
 	if((len(argv) <= 2) or (len(argv)) > 4):
 		print ("Use : python _client.py hostname port language(BR|EN) ");
 		exit();	
@@ -74,28 +75,33 @@ def chat_client():
 	    for sock in ready_to_read:             
 	        if sock == client_socket:
 	            # incoming message from remote server, s
-	            data = sock.recv(4096)
+	            os.system('cls' if os.name=='nt' else 'clear');
+	            data = sock.recv(4096);
 	            if not data :
 	                print ('\nDisconnected from chat server');
 	                exit()
 	            else :
 	                #print data
-	                stdout.write(data)
+	                stdout.write(data);
+	                """
 	                if(LANGUAGE == "br"):
 	                	stdout.write('[Eu] '); stdout.flush();
                 	else:
                 		stdout.write('[Me] '); stdout.flush(); 
+            		"""
 	        
 	        else :
 	            # user entered a message
 				msg = stdin.readline();
 				client_socket.send(msg);
+				"""
 				if(LANGUAGE == "br"):
 					stdout.write('[Eu] '); 
 				else:
 					stdout.write('[Me] ');
+				"""
 				stdout.flush();
 
 if __name__ == "__main__":
 
-    exit(chat_client())
+    exit(tic_tac_toe_client())
