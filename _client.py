@@ -1,16 +1,25 @@
+# Import from sys 
 from sys import argv, stdin, stdout
+# Import sockets
 import socket
+# Import select
 import select
+# Import OS
 import os
- 
+
+# Client socket
 def tic_tac_toe_client():
-	if((len(argv) <= 2) or (len(argv)) > 4):
+	# Using parameter to define HOST and PORT
+	# Case less or more than expected
+	if((len(argv) <= 2) or (len(argv)) > 4): 
 		print ("Use : python _client.py hostname port language(BR|EN) ");
 		exit();	
+	# Case HOST and PORT given by command line, but not language
 	elif(len(argv) == 3):
 		HOST = argv[1];
 		PORT = argv[2];
 		LANGUAGE = "EN";
+	# Case HOST, PORT and LANGUAGE given by command line
 	elif(len(argv) == 4):
 		HOST = argv[1];
 		PORT = argv[2]; 
@@ -21,36 +30,44 @@ def tic_tac_toe_client():
 		else:
 			LANGUAGE = argv[3];
 
+	# Set interface
 	LANGUAGE = LANGUAGE.lower();
 	if(LANGUAGE == "br"):
 		print("Interface esta definida para PT-BR");
 	else:
 		print("Interface is set to EN");
 
+	# Define connection
 	CONNECTION = (HOST, int(PORT));
 
+	# Create a TCP/IP socket
 	client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
+	# Set timeout connection
 	client_socket.settimeout(10);
 
 	while True:
+		# If still having trouble with connection, recall the loop
 		try:
 			if(LANGUAGE == "br"):
 				print ("\nConectando a "+HOST+"::"+PORT);
 			else:
 				print ("\nConnecting to "+HOST+"::"+PORT);
 
+			# Try connect in HOST and PORT given
 			client_socket.connect(CONNECTION);
 			break;
 		except:
+			# If have any trouble, the user can change HOST or PORT
 			if(LANGUAGE == "br"):
 				print ("Erro ao se conectar a "+HOST+"::"+PORT);
 				chose = input("[A]bortar, [M]odificar ou [T]entar novamente?");
 			else:
 				print ("Error in connection "+HOST+"::"+PORT);
 				chose = input("[A]bort, [C]hange ou [T]ry again?");
-
+			# Choice is abort
 			if(chose.lower() == 'a'):
 				exit();
+			# Choice is change
 			elif((chose.lower() == 'm' and LANGUAGE == "br") or (chose.lower() == 'c' and LANGUAGE == "en")):
 				if(LANGUAGE == "br"):
 					HOST = input("Insira o HOST: ");
@@ -58,13 +75,14 @@ def tic_tac_toe_client():
 				else:
 					HOST = input("Enter the HOST: ");
 					PORT = input("Enter the PORT: ");
+			else:
+				continue;
 
+	# The connection was successfull
 	if(LANGUAGE == "br"):
 		print ("Conexao estabelecida\nAguardando adversario...");
-		#stdout.write('[Eu] '); stdout.flush();
 	else:
 		print ("Connection established\nWaiting other player...");
-		#stdout.write('[Me] '); stdout.flush();
 		
 	while 1:
 	    socket_list = [stdin, client_socket];
@@ -74,34 +92,27 @@ def tic_tac_toe_client():
 	     
 	    for sock in ready_to_read:             
 	        if sock == client_socket:
-	            # incoming message from remote server, s
+	            # Incoming position from remote server
+	            # Clear the console (works in linux and windows)
 	            os.system('cls' if os.name=='nt' else 'clear');
+	            # Receive the message
 	            data = sock.recv(4096);
 	            if not data :
-	                print ('\nDisconnected from game');
-	                exit()
+	            	# Some trouble ...
+	                print ('\nDisconnected from game\n');
+	                exit();
 	            else :
-	                #print data
+	                # Print message
 	                stdout.write(data);
-	                """
-	                if(LANGUAGE == "br"):
-	                	stdout.write('[Eu] '); stdout.flush();
-                	else:
-                		stdout.write('[Me] '); stdout.flush(); 
-            		"""
 	        
 	        else :
-	            # user entered a message
+	            # User entered a position
 				msg = stdin.readline();
+				# Send the position to server
 				client_socket.send(msg);
-				"""
-				if(LANGUAGE == "br"):
-					stdout.write('[Eu] '); 
-				else:
-					stdout.write('[Me] ');
-				"""
+				# Clear buffer
 				stdout.flush();
 
 if __name__ == "__main__":
 
-    exit(tic_tac_toe_client())
+    exit(tic_tac_toe_client());
