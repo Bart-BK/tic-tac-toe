@@ -99,20 +99,26 @@ class Client_Tic_Tac_Toe:
 				# If sock is this client        
 				if sock == self.client_socket:
 					# Incoming position from remote server
-					self.clear();
 
-					# Show message
-					print("The game started... if you want quit, write \"quit\"\n");
 					# Receive the message
 					data = self.recv(sock);
+					# Decode the received data
+					data = data.decode();
 
 					if not data :
 						# Some trouble ...
 						print ('\nDisconnected from game\n');
 						exit();
 					else :
-						# Print message
-						print(data.decode());
+						# Clear the console
+						self.clear();
+						try:
+							# Print message
+							print(data);
+
+						except Exception as e:
+							print(str(e));
+						
 
 				else :
 					# User entered a position
@@ -150,6 +156,7 @@ def main():
 
 	while True:
 		try:
+			# Start the game
 			if(int(choice) == 1):
 				# Main class of Tic Tac Toe
 				client = Client_Tic_Tac_Toe();
@@ -165,14 +172,24 @@ def main():
 
 				exit();
 
+			# Show Credits
 			elif(int(choice) == 2):
 				credits = "\nGame made by: Prabhat Kumar de Oliveira\n";
 				choice = raw_input(title + credits + welcome_message);
+
+			# Exit
 			elif(int(choice) == 3):
 				print("Have you liked the game?\n");
 				exit();
+
+			# Invalid choice (if int)
+			else:
+			    while((int(choice) < 1) or (int(choice) > 3)):
+			        choice = raw_input("Please, enter valid choice: ");
+
+        # Invalid choice (if not int)
 		except Exception as e:
-			choice = raw_input("Invalid choice, please enter again: ");
+			choice = raw_input("Invalid choice, please enter again (must be int): ");
 	
 
 if __name__ == "__main__":
