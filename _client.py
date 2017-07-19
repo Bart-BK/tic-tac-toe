@@ -8,111 +8,169 @@ import select
 import os
 
 # Client socket
-def tic_tac_toe_client():
-	# Using parameter to define HOST and PORT
-	# Case less or more than expected
-	if((len(argv) <= 2) or (len(argv)) > 4): 
-		print ("Use : python _client.py hostname port language(BR|EN) ");
-		exit();	
-	# Case HOST and PORT given by command line, but not language
-	elif(len(argv) == 3):
-		HOST = argv[1];
-		PORT = argv[2];
-		LANGUAGE = "EN";
-	# Case HOST, PORT and LANGUAGE given by command line
-	elif(len(argv) == 4):
-		HOST = argv[1];
-		PORT = argv[2]; 
-		if(argv[3].lower() != "br" and argv[3].lower() != "en"):
-			LANGUAGE = input("Please, give a valid language:");
-			while(LANGUAGE.lower() != "br" and LANGUAGE.lower() != "en"):
-				LANGUAGE = input("Please, give a valid language (BR or EN):");
+class Client_Tic_Tac_Toe:
+	"""This is a client who is connected with the socket server and is Player of the Tic Tac Toe Game"""
+
+	def __init__(self):
+		# Create a TCP/IP socket
+		self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
+		# Set timeout connection
+		self.client_socket.settimeout(10);
+
+	def get_HOST_PORT(self):
+		# Case HOST and PORT given by command line
+		if(len(argv) == 3):
+			HOST = argv[1];
+			PORT = argv[2];
+		# Else, request the input for the HOST and PORT
 		else:
-			LANGUAGE = argv[3];
+			print("Failed to get the HOST and PORT\n");
+			HOST = raw_input("Enter the HOST: ");
+			PORT = raw_input("Enter the PORT: ");
 
-	# Set interface
-	LANGUAGE = LANGUAGE.lower();
-	if(LANGUAGE == "br"):
-		print("Interface esta definida para PT-BR");
-	else:
-		print("Interface is set to EN");
+		# Return the HOST and PORT
+		return HOST,PORT;
 
-	# Define connection
-	CONNECTION = (HOST, int(PORT));
-
-	# Create a TCP/IP socket
-	client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
-	# Set timeout connection
-	client_socket.settimeout(10);
-
-	while True:
-		# If still having trouble with connection, recall the loop
+	def connect(self, HOST, PORT):
+		# Define connection
 		try:
-			if(LANGUAGE == "br"):
-				print ("\nConectando a "+HOST+"::"+PORT);
-			else:
-				print ("\nConnecting to "+HOST+"::"+PORT);
-
-			# Try connect in HOST and PORT given
-			client_socket.connect(CONNECTION);
-			break;
+			CONNECTION = (HOST, int(PORT));
 		except:
-			# If have any trouble, the user can change HOST or PORT
-			if(LANGUAGE == "br"):
-				print ("Erro ao se conectar a "+HOST+"::"+PORT);
-				chose = input("[A]bortar, [M]odificar ou [T]entar novamente?");
-			else:
-				print ("Error in connection "+HOST+"::"+PORT);
-				chose = input("[A]bort, [C]hange ou [T]ry again?");
+			# If CONNECTION not receive an int
+			while(self.isNotInt(PORT, "PORT")):
+				PORT = raw_input("Enter the PORT (must be int): ");
+			CONNECTION = (HOST, int(PORT));
+
+		print("Connecting to "+HOST+"::"+PORT);
+
+		try:
+			# Try connect in HOST and PORT given
+			self.client_socket.connect(CONNECTION);
+			print("Connection established, waiting for opponent...");
+
+		except Exception as e:
+			print ("Error in connection "+HOST+"::"+PORT);
+			# If have any trouble, try receive again
+			choice = raw_input("[A]bort, [C]hange ou [T]ry again?");
 			# Choice is abort
-			if(chose.lower() == 'a'):
+			if(choice.lower() == "a"):
 				exit();
 			# Choice is change
-			elif((chose.lower() == 'm' and LANGUAGE == "br") or (chose.lower() == 'c' and LANGUAGE == "en")):
-				if(LANGUAGE == "br"):
-					HOST = input("Insira o HOST: ");
-					PORT = input("Insira a PORTA: ");
-				else:
-					HOST = input("Enter the HOST: ");
-					PORT = input("Enter the PORT: ");
-			else:
-				continue;
+			elif(choice.lower() == "c"):
+				HOST = raw_input("Enter the HOST: ");
+				PORT = raw_input("Enter the PORT: ");
+			
+			self.connect(HOST,PORT);
 
-	# The connection was successfull
-	if(LANGUAGE == "br"):
-		print ("Conexao estabelecida\nAguardando adversario...");
-	else:
-		print ("Connection established\nWaiting other player...");
-		
-	while 1:
-	    socket_list = [stdin, client_socket];
-	     
-	    # Get the list sockets which are readable
-	    ready_to_read,ready_to_write,in_error = select.select(socket_list , [], [])
-	     
-	    for sock in ready_to_read:             
-	        if sock == client_socket:
-	            # Incoming position from remote server
-	            # Clear the console (works in linux and windows)
-	            os.system('cls' if os.name=='nt' else 'clear');
-	            # Receive the message
-	            data = sock.recv(4096);
-	            if not data :
-	            	# Some trouble ...
-	                print ('\nDisconnected from game\n');
-	                exit();
-	            else :
-	                # Print message
-	                stdout.write(data);
-	        
-	        else :
-	            # User entered a position
-				msg = stdin.readline();
-				# Send the position to server
-				client_socket.send(msg);
-				# Clear buffer
-				stdout.flush();
+	def clear(self):
+		# Clear the console (works in linux and windows)
+		os.system('cls' if os.name=='nt' else 'clear');
+
+	def recv(self, sock):
+		# Receive a message from socket
+		return sock.recv(4096);
+
+	def isNotInt(self, value, typeVerification):
+		if(typeVerification == "POS"):
+			try:
+				if(int(value) > 0 and int(value) < 10):
+					return False;
+				return True;
+			except: # The value isn't a int type
+				return True;
+		elif(typeVerification == "PORT"):
+			try:
+				if(int(value) > 0):
+					return False;
+				return True;
+			except: # The value isn't a int type
+				return True;
+
+	def start(self):
+
+		while 1:
+			# Socket list [key, value]
+			socket_list = [stdin, self.client_socket];
+
+			# Get the list sockets which are readable
+			ready_to_read,ready_to_write,in_error = select.select(socket_list , [], []);
+		     
+			for sock in ready_to_read:
+				# If sock is this client        
+				if sock == self.client_socket:
+					# Incoming position from remote server
+					self.clear();
+
+					# Show message
+					print("The game started... if you want quit, write \"quit\"\n");
+					# Receive the message
+					data = self.recv(sock);
+
+					if not data :
+						# Some trouble ...
+						print ('\nDisconnected from game\n');
+						exit();
+					else :
+						# Print message
+						print(data.decode());
+
+				else :
+					# User entered a position
+					position = raw_input();
+					# Check if user entered a quit command
+					if(position.lower() == "quit"):
+						print("You QUIT the Game, you lost!\nGame Over");
+						exit();
+					# Check if the user enter a invalid position
+					while self.isNotInt(position, "POS"):
+						position = raw_input("Please, enter a valid position (1 to 9): ");
+						# Check if user entered a quit command
+						if(position.lower() == "quit"):
+							print("You QUIT the Game, you lost!\nGame Over");
+							exit();
+					# Send the position to server
+					self.client_socket.send(position.encode());
+					# Clear buffer
+					stdout.flush();
+
+def main():
+	title = " _____ ___ ____   _____  _    ____   _____ ___  _____ \n"\
+			"|_   _|_ _/ ___| |_   _|/ \  / ___| |_   _/ _ \| ____|\n"\
+			"  | |  | | |       | | / _ \| |       | || | | |  _|  \n"\
+			"  | |  | | |___    | |/ ___ \ |___    | || |_| | |___ \n"\
+			"  |_| |___\____|   |_/_/   \_\____|   |_| \___/|_____|\n"\
+			"                                                      \n\n";
+
+	welcome_message =	"(1) Start the Game\n"\
+						"(2) Credits\n"\
+						"(3) Quit\n\n";
+
+	# Display a welcome message
+	choice = raw_input(title + welcome_message);
+
+	while True:
+		try:
+			if(int(choice) == 1):
+				# Main class of Tic Tac Toe
+				client = Client_Tic_Tac_Toe();
+
+				# Get the HOST and PORT
+				HOST, PORT = client.get_HOST_PORT();
+
+				# Try connect
+				client.connect(HOST,PORT);
+
+				client.start();
+			elif(int(choice) == 2):
+				credits = "\nGame made by: Prabhat Kumar de Oliveira\n";
+				choice = raw_input(title + credits + welcome_message);
+			elif(int(choice) == 3):
+				print("Have you liked the game?\n");
+				exit();
+		except Exception as e:
+			choice = raw_input("Invalid choice, please enter again: "+ str(e));
+	
 
 if __name__ == "__main__":
 
-    exit(tic_tac_toe_client());
+    main();
