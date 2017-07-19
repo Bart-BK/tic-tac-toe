@@ -168,7 +168,7 @@ def main():
 				print("Have you liked the game?\n");
 				exit();
 		except Exception as e:
-			choice = raw_input("Invalid choice, please enter again: "+ str(e));
+			choice = raw_input("Invalid choice, please enter again: ");
 	
 
 if __name__ == "__main__":
