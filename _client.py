@@ -48,7 +48,7 @@ class Client_Tic_Tac_Toe:
 			self.client_socket.connect(CONNECTION);
 			print("Connection established, waiting for opponent...");
 
-		except Exception as e:
+		except:
 			print ("Error in connection "+HOST+"::"+PORT);
 			# If have any trouble, try receive again
 			choice = raw_input("[A]bort, [C]hange ou [T]ry again?");
@@ -160,7 +160,11 @@ def main():
 				# Try connect
 				client.connect(HOST,PORT);
 
+				# Start the Player socket
 				client.start();
+
+				exit();
+
 			elif(int(choice) == 2):
 				credits = "\nGame made by: Prabhat Kumar de Oliveira\n";
 				choice = raw_input(title + credits + welcome_message);
