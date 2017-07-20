@@ -11,7 +11,7 @@ Manual
 
 To use the client and server, run in order, parameters in parenthesis can be given by command line or during the run of script
 
-  python _server.py (port)
+	python _server.py (port)
   
 	python _client.py (host) (port)
 
