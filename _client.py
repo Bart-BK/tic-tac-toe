@@ -113,8 +113,12 @@ class Client_Tic_Tac_Toe:
 						# Clear the console
 						self.clear();
 						try:
-							# Print message
-							print(data);
+							# If received a block command, dont print the command
+							if(data[0] == "B"):
+								print(data[1:]);
+							else:
+								# Print message
+								print(data);
 
 						except Exception as e:
 							print(str(e));
@@ -134,8 +138,13 @@ class Client_Tic_Tac_Toe:
 						if(position.lower() == "quit"):
 							print("You QUIT the Game, you lost!\nGame Over");
 							exit();
-					# Send the position to server
-					self.client_socket.send(position.encode());
+
+					# If client is blocked, don't send the message
+					if(data[0] != "B"):
+						# Send the position to server
+						self.client_socket.send(position.encode());
+					else:
+						print("It's not your turn, please wait!");
 					# Clear buffer
 					stdout.flush();
 

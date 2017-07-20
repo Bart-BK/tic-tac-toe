@@ -8,7 +8,7 @@ from sys import argv
 import random
 
 class Server_Tic_Tac_Toe:
-    """docstring for Server_Tic_Tac_Toe"""
+    """This is the server, and the game logic of tic tac toe"""
 
     def __init__(self):
         # Create a TCP/IP socket
@@ -193,7 +193,9 @@ class Server_Tic_Tac_Toe:
                 # For moving player, send the board tutorial and board content
                 # For the waiting player, send the board content
                 playerInMove.send("My role is: "+moveRole+"\nBoard Tutorial\n"+self.printBoard(self.boardTutorial)+"\nBoard Content\n"+self.printBoard(self.boardContent)+"Its your turn, make a move: ");
-                playerWaiting.send("My role is: "+waitRole+"\nBoard Content\n"+self.printBoard(self.boardContent)+"Waiting the opponent's move");
+                # The message will be sent with a command, who block the client of send a position if it's not their turn
+                # The command is "B" (BLOCK)
+                playerWaiting.send("B"+"My role is: "+waitRole+"\nBoard Content\n"+self.printBoard(self.boardContent)+"Waiting the opponent's move");
             
             # The game result in a draw
             if(typeMSG[0] == "0"):
@@ -206,7 +208,7 @@ class Server_Tic_Tac_Toe:
                 playerWaiting.send("You LOSE\nThe opponent"+typeMSG[1:]+"\nGame Over\n");
                 exit();
         except:
-            print("Someone disconnected, the game will be finished\n");
+            print("The moving player disconnected, the game will be finished\n");
             exit();
 
     def getRandomNumber(self):
